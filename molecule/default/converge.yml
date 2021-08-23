@@ -1,5 +1,7 @@
 ---
-- hosts: all
+
+- name: converge
+  hosts: all
   any_errors_fatal: false
 
   environment:

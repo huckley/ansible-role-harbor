@@ -1,7 +1,28 @@
 ---
-ansible_python_interpreter: python3
 
-harbor_hostname: harbor
+#ansible_python_interpreter: python3
+
+harbor_ssl_self_subject: "/O=Harbor Server/OU=Self signed/CN=registry.bar.local"
+harbor_self_registration: "on"
+
+# harbor_hostname: harbor
 harbor_installer_with:
-  - --with-clair
   - --with-chartmuseum
+
+harbor_users:
+  - username: coremedia
+    password: C0remedia
+    email: build@cm.lan
+    realname: automatic build
+    role_name: administrator
+    has_admin_role: true
+
+harbor_projects:
+  - project_name: coremedia
+    is_public: "true"
+    content_trust: "true"
+    prevent_vul: "true"
+    severity: "high"
+    auto_scan: "true"
+
+...

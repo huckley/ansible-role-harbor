@@ -4,12 +4,14 @@ local_tmp_directory: "/var/tmp/harbor/{{ harbor_version }}"
 
 _harbor_packages:
   default:
+    - docker-compose
     - openssl
     - python3-docker
   centos:
     - openssl
     - python36-docker
   debian:
+    - docker-compose
     - openssl
     - python3-docker
     - python3-pip

@@ -1,6 +1,8 @@
 ---
 
-harbor_version: 2.1.1
+harbor_version: 2.3.1
+harbor_release: 2.3.0
+
 http_server: "https://github.com/goharbor/harbor/releases/download/v{{ harbor_version }}"
 
 harbor_url: "{{ http_server }}/harbor-offline-installer-v{{ harbor_version }}.tgz"
@@ -41,11 +43,11 @@ harbor_self_registration: "on"
 harbor_redis_host: redis
 
 # If you have Harbor running on say "myregistry.company.com", that's what you should have as harbor_hostname
-harbor_hostname: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+harbor_hostname: "{{ ansible_fqdn }}" #  hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 harbor_datadir: "/data"
 harbor_ssl_self_days: 180
 harbor_ssl_self_subject: "/O=Harbor Server/OU=Self signed/CN=test"
-harbor_api_port: "{% if harbor_ui_url_protocol == 'http' %}{{harbor_exposed_http_port}}{% else %}{{harbor_exposed_https_port}}{% endif %}"
+harbor_api_port: "{% if harbor_ui_url_protocol == 'http' %}{{ harbor_exposed_http_port }}{% else %}{{ harbor_exposed_https_port }}{% endif %}"
 # If you are running Harbor behind your own proxy, override this as it might not match with Harbor.cfg values.
 harbor_api_url: "{{ harbor_ui_url_protocol }}://{{ harbor_hostname }}:{{ harbor_api_port }}/api/v2.0"
 
@@ -75,7 +77,6 @@ harbor_users: []
 
 harbor_installer_with: []
 #  --with-notary if needs enable Notary in Harbor
-#  --with-clair if needs enable Clair in Harbor
 #  --with-trivy if needs enable Trivy in Harbor
 #  --with-chartmuseum if needs enable Chartmuseum in Harbor
 

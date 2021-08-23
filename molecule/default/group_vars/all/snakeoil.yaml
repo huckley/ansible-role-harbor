@@ -1,0 +1,11 @@
+---
+
+snakeoil_domain: bar.local
+# snakeoil_force: true
+snakeoil_alt_names:
+  - dns:
+      - registry.bar.local
+
+snakeoil_extract_to: '{{ harbor_install_dir }}'
+
+...

@@ -1,0 +1,13 @@
+---
+
+- name: docker
+  src: https://github.com/bodsch/ansible-role-docker.git
+  scm: git
+  version: development
+
+- name: snakeoil
+  src: https://github.com/bodsch/ansible-snakeoil.git
+  scm: git
+  version: 1.2.2
+
+...

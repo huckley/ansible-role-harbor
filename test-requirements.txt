@@ -1,13 +1,11 @@
 molecule
 molecule-docker
-molecule-podman
 docker
 ansible-lint
-yamllint>=1.26
-flake8>=3.8
+yamllint
+flake8
 jmespath
 pytest
 pytest-testinfra
 tox
 tox-gh-actions
-PyYAML>=5.3

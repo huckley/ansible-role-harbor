@@ -1,5 +1,14 @@
 ---
 
+- debug:
+    msg:
+      - "{{ ansible_fqdn }}"
+      - "{{ harbor_hostname }}"
+      - "{{ ansible_default_ipv4.address }}"
+      - "{{ harbor_ui_url_protocol }}://{{ ansible_fqdn }}:{{ harbor_api_port }}/api/v2.0"
+      - "{{ hostvars[inventory_hostname]['ansible_default_ipv4'] }}"
+      - "{{ harbor_api_url }}"
+
 - name: Checking if Harbor is already installed
   stat:
     path: "{{ harbor_install_dir }}/harbor/common/config"
@@ -31,3 +40,5 @@
     - "{{ harbor_install_dir }}/harbor/harbor.v{{ harbor_version }}.tar.gz"
 
 - include_tasks: service.yml
+
+...
