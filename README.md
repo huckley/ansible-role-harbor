@@ -142,13 +142,13 @@ harbor_redis_host: redisharbor
 
 This will ensure that:
 
-- Harbor's nginx gets [this line](https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md#troubleshooting) commented.      
+- Harbor's nginx gets [this line](https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md#troubleshooting) commented.
 - The registry realm url is updated correctly.
 
 This is a bit convoluted but it's a compromise to try and not change Harbor's files/templates too much as this will incur frequent breakage. I'm open to suggestions on how to improve, though.
 
 
-## Managing state 
+## Managing state
 
 For convenience, this role includes tasks to stop, start and restart the registry using docker-compose.
 
