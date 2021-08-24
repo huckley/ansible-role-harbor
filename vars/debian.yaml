@@ -1,0 +1,11 @@
+---
+
+harbor_packages:
+  - docker-compose
+  - openssl
+  - python3-docker
+  - python3-pip
+
+systemd_lib_directory: /lib/systemd/system
+
+...

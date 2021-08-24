@@ -1,9 +1,24 @@
 ---
 
-- name: Checking if Harbor is already installed
-  stat:
-    path: "{{ harbor_install_dir }}/harbor/common/config"
-  register: harbor_folder_st
+- name: include OS specific configuration ({{ ansible_distribution }} ({{ ansible_os_family }}) {{ ansible_distribution_major_version }})
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      paths:
+        - "vars"
+      files:
+        # eg. debian-10 / ubuntu-20.04 / centos-8 / oraclelinux-8
+        - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yaml"
+        # eg. debian / ubuntu / centos / oraclelinux
+        - "{{ ansible_distribution | lower }}.yaml"
+        # eg. redhat / debian
+        - "{{ ansible_os_family | lower }}.yaml"
+        - default.yaml
+      skip: true
+
+- name: update package cache
+  package:
+    update_cache: true
 
 - name: do facts module to get latest information
   setup:
@@ -11,5 +26,10 @@
       - '!all'
       - '!any'
       - facter
+
+- name: Checking if Harbor is already installed
+  stat:
+    path: "{{ harbor_install_dir }}/harbor/common/config"
+  register: harbor_folder_st
 
 ...
