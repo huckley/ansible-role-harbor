@@ -3,7 +3,7 @@
 - name: docker
   src: https://github.com/bodsch/ansible-role-docker.git
   scm: git
-  version: development
+  version: 3.0.7
 
 - name: snakeoil
   src: https://github.com/bodsch/ansible-snakeoil.git
