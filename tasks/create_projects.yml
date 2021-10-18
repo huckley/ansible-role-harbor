@@ -1,6 +1,6 @@
 ---
 
-- name: "Creating projects ..."
+- name: "creating projects ..."
   uri:
     url: "{{ harbor_api_url }}/projects"
     method: POST
@@ -13,8 +13,12 @@
     force_basic_auth: true
     return_content: true
     body: "{{ lookup('template', 'templates/create_project.j2') }}"
-  when: harbor_projects is defined
-  with_items: "{{ harbor_projects | default(omit) }}"
+  when:
+    - harbor_projects is defined
+    - harbor_projects | count > 0
+  loop: "{{ harbor_projects }}"
+  loop_control:
+    label: "{{ item.project_name }}"
 
 - name: "get projects"
   uri:
@@ -26,8 +30,12 @@
     return_content: true
     body_format: json
   register: harbor_existing_projects
-  with_items: "{{ harbor_projects | default(omit) }}"
-  when: harbor_projects is defined
+  when:
+    - harbor_projects is defined
+    - harbor_projects | count > 0
+  loop: "{{ harbor_projects }}"
+  loop_control:
+    label: "{{ item.project_name }}"
 
 - name: "get users"
   uri:
@@ -39,7 +47,12 @@
     return_content: true
     body_format: json
   register: harbor_existing_users
-  with_items: "{{ harbor_users | default(omit) }}"
+  when:
+    - harbor_users is defined
+    - harbor_projects | count > 0
+  loop: "{{ harbor_users }}"
+  loop_control:
+    label: "{{ item.username }}"
 
 - name: add user to project
   uri:
@@ -57,7 +70,13 @@
     force_basic_auth: true
     return_content: true
     # The role id 1 for projectAdmin, 2 for developer, 3 for guest, 4 for master
-    body: '{ "role_id": 1, "member_user": { "user_id": {{ item.1.user_id }}, "username": "{{ item.1.username }}" } }'
+    body: '{
+      "role_id": 1,
+      "member_user": {
+        "user_id": {{ item.1.user_id }},
+        "username": "{{ item.1.username }}"
+      }
+    }'
   when:
     - harbor_existing_users is defined
     - harbor_projects is defined and harbor_projects | count != 0
@@ -65,3 +84,7 @@
     - "{{ harbor_existing_projects.results[0].content }}"
     - "{{ harbor_existing_users.results[0].content }}"
     - "{{ harbor_projects }}"
+  loop_control:
+    label: "{{ item.1.username }}"
+
+...

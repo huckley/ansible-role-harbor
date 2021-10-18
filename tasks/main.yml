@@ -6,7 +6,10 @@
 
 # Restart only if we changed the registry realm
 - include_tasks: restart.yaml
-  when: harbor_behind_proxy is defined and harbor_behind_proxy and harbor_registry_realm_protocol != harbor_ui_url_protocol
+  when:
+    - harbor_behind_proxy is defined
+    - harbor_behind_proxy
+    - harbor_registry_realm_protocol != harbor_ui_url_protocol
 
 - include_tasks: create_users.yml
 - include_tasks: create_projects.yml
