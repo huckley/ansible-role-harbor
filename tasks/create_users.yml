@@ -6,9 +6,14 @@
       - item.password | default("HarborUser12345") | length > 8
     quiet: true
     success_msg: "Password length is greater 8"
-  with_items: "{{ harbor_users | default(omit) }}"
+  loop: "{{ harbor_users | default(omit) }}"
+  loop_control:
+    label: "{{ item.username }}"
+  when:
+    - harbor_users is defined
+    - harbor_users | count > 0
 
-- name: "Creating users ... '{{ harbor_api_url }}/users'"
+- name: "creating users ..."
   uri:
     url: "{{ harbor_api_url }}/users"
     method: POST

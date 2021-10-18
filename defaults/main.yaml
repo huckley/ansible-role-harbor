@@ -1,6 +1,6 @@
 ---
 
-harbor_version: 2.3.1
+harbor_version: 2.3.3
 harbor_release: 2.3.0
 
 http_server: "https://github.com/goharbor/harbor/releases/download/v{{ harbor_version }}"

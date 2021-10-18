@@ -15,20 +15,20 @@
 
 - block:
     - name: create local temporary path
+      delegate_to: localhost
       become: false
       file:
         path: "{{ local_tmp_directory }}"
         state: directory
         mode: 0700
-      delegate_to: localhost
 
     - name: "Downloading Harbor {{ harbor_version }} (offline installer)"
+      delegate_to: localhost
+      become: false
       get_url:
         url: "{{ harbor_url }}"
         dest: "{{ local_tmp_directory }}/harbor-{{ harbor_version }}.tgz"
         validate_certs: false
-      become: false
-      delegate_to: localhost
 
     - name: deploy application archiv
       copy:
@@ -39,7 +39,7 @@
   when:
     - not harbor_folder_st.stat.exists
 
-- name: "Creating Harbor directory... ({{ harbor_install_dir }}/harbor)"
+- name: "creating Harbor directory... ({{ harbor_install_dir }}/harbor)"
   file:
     path: "{{ harbor_install_dir }}"
     state: directory
@@ -47,7 +47,7 @@
   when:
     - not harbor_folder_st.stat.exists
 
-- name: "Uncompressing Harbor installer..."
+- name: "uncompressing Harbor installer..."
   unarchive:
     remote_src: true
     src: /tmp/harbor.tgz
@@ -89,52 +89,58 @@
     regexp: '(proxy_set_header X-Forwarded-Proto \$\$scheme;)'
     replace: '# \1'
     backup: true
-  when: harbor_behind_proxy is defined and harbor_behind_proxy
+  when:
+    - harbor_behind_proxy is defined
+    - harbor_behind_proxy
   with_items:
     - "nginx.http.conf"
     - "nginx.https.conf"
 
 # pre-configure
 
-- name: Copying over harbor.yml
-  template:
-    src: harbor.yml.j2
-    dest: "{{ harbor_install_dir }}/harbor/harbor.yml"
-    mode: 0640
+- block:
+    - name: copying over harbor.yml
+      template:
+        src: harbor.yml.j2
+        dest: "{{ harbor_install_dir }}/harbor/harbor.yml"
+        mode: 0640
+      when:
+        - not harbor_folder_st.stat.exists or
+          (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
+
+    - name: ensure that prepare script are executable
+      file:
+        name: "{{ harbor_install_dir }}/harbor/prepare"
+        mode: 0750
+      when:
+        - not harbor_folder_st.stat.exists or
+          (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
+
+    - name: running Harbor installer in {{ harbor_install_dir }}/harbor ...
+      become: true
+      command: |
+        /bin/bash ./install.sh {{ harbor_installer_with | default([]) | join(' ') }} {{ harbor_installer_extra_args }}
+      args:
+        chdir: "{{ harbor_install_dir }}/harbor"
+        creates: '{{ harbor_install_dir }}/harbor/harbor_install_log.txt'
+      environment:
+        SHELL: /bin/bash
+        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+        TERM: xterm
+      when:
+        - not harbor_folder_st.stat.exists or
+          (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
+
+    - name: collect facts about system services
+      service_facts:
+      register: services_state
+
+    - name: wait 15 seconds for clean startup
+      pause:
+        seconds: 15
   when:
     - not harbor_folder_st.stat.exists or
       (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
-
-- name: ensure that prepare script are executable
-  file:
-    name: "{{ harbor_install_dir }}/harbor/prepare"
-    mode: 0750
-  when:
-    - not harbor_folder_st.stat.exists or
-      (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
-
-- name: Running Harbor installer in {{ harbor_install_dir }}/harbor ...
-  become: true
-  command: |
-    /bin/bash ./install.sh {{ harbor_installer_with | default([]) | join(' ') }} {{ harbor_installer_extra_args }}
-  args:
-    chdir: "{{ harbor_install_dir }}/harbor"
-    creates: '{{ harbor_install_dir }}/harbor/harbor_install_log.txt'
-  environment:
-    SHELL: /bin/bash
-    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
-    TERM: xterm
-  when:
-    - not harbor_folder_st.stat.exists or
-      (harbor_folder_st.stat.isdir is defined and not harbor_folder_st.stat.isdir)
-
-- name: collect facts about system services
-  service_facts:
-  register: services_state
-
-- name: wait 15 seconds for clean startup
-  pause:
-    seconds: 15
 
 - name: wait for health
   uri:
@@ -152,6 +158,6 @@
   retries: 10
   delay: 10
 
-- name: hatrbor version
+- name: harbor version
   debug:
     msg: "{{ harbor_version }}"
