@@ -145,6 +145,7 @@
 - name: wait for health
   uri:
     url: "http://127.0.0.1/api/version"
+    validate_certs: false
     method: GET
     status_code:
       - 200
