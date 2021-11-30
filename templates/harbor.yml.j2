@@ -10,12 +10,12 @@ http:
   port: {{ harbor_exposed_http_port }}
 
 # https related config
-# https:
-#   # https port for harbor, default is 443
-#   port: 443
-#   # The path of cert and key files for nginx
-#   certificate: /your/certificate/path
-#   private_key: /your/private/key/path
+https:
+  # https port for harbor, default is 443
+  port: {{ harbor_exposed_https_port }}
+  # The path of cert and key files for nginx
+  certificate: {{ harbor_ssl_cert }}
+  private_key: {{ harbor_ssl_cert_key }}
 
 # # Uncomment following will enable tls communication between all harbor components
 # internal_tls:
